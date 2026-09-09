@@ -6,8 +6,8 @@ import LoadingSpinner from "../components/common/LoadingSpinner";
 import EmptyState from "../components/common/EmptyState";
 import ErrorBanner from "../components/common/ErrorBanner";
 import Toast from "../components/common/Toast";
-import UserTable from "../components/users/UserTable";
-import UserForm from "../components/users/UserForm";
+import UserTable from "../components/users/userTable";
+import UserForm from "../components/users/userForm";
 import { userService } from "../services/userService";
 import { useToast } from "../hooks/useToast";
 
