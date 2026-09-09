@@ -96,7 +96,7 @@ export default function StudentForm({
       <Input
         label="Student Name"
         name="name"
-        placeholder="e.g. Rahul Sharma"
+        placeholder="e.g. Abdullah"
         value={values.name}
         error={errors.name}
         onChange={(e) => setValues((v) => ({ ...v, name: e.target.value }))}

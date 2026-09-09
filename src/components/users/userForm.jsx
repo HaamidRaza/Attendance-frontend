@@ -32,7 +32,7 @@ export default function UserForm({ onCancel, onSubmit, isSubmitting }) {
       <Input
         label="Name"
         name="name"
-        placeholder="e.g. Priya Shah"
+        placeholder="e.g. Abdul Basit"
         value={values.name}
         error={errors.name}
         onChange={(e) => setValues((v) => ({ ...v, name: e.target.value }))}
