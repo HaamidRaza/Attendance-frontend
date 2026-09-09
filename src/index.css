@@ -1,0 +1,139 @@
+@import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap");
+
+@theme {
+  --font-display: "Manrope", system-ui, sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+
+  /* Core neutrals — derived from #0F1108 / #F2F4F3 */
+  --color-ink: #0f1108;
+  --color-slate: #565b4f;
+  --color-mist: #8b9086;
+
+  --color-canvas: #f2f4f3;
+  --color-surface: #ffffff;
+  --color-line: #e2e5e0;
+  --color-line-strong: #cbd0c6;
+
+  /* Brand — derived from #2A7221 */
+  --color-brand-50: #e9f2e6;
+  --color-brand-100: #cbe3c3;
+  --color-brand-500: #2a7221;
+  --color-brand-600: #225e1b;
+  --color-brand-700: #1b4b15;
+
+  --color-present-50: #e9f2e6;
+  --color-present-600: #2a7221;
+
+  --color-absent-50: #fbeae8;
+  --color-absent-600: #b8452f;
+
+  --color-warn-50: #fbf3e6;
+  --color-warn-600: #a5701a;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  color: var(--color-ink);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+}
+
+/* Subtle entrance animation */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.5s ease-out both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: 8px;
+}
+
+@keyframes sheetUp {
+  0% {
+    transform: translateY(100%);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+  75% {
+    transform: translateY(-4px);
+  }
+  90% {
+    transform: translateY(2px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+.animate-sheet-up {
+  animation: sheetUp 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
