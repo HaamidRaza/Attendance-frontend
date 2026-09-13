@@ -3,6 +3,7 @@ import { Upload, FileText, X } from "lucide-react";
 import Input from "../common/Input";
 import Select from "../common/Select";
 import Button from "../common/Button";
+import { compressImage } from "../../utils/imageCompression";
 import { useProtectedFile } from "../../hooks/useProtectedFile";
 
 const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -91,6 +92,45 @@ export default function StudentForm({
     onSubmit(formData);
   }
 
+  async function handlePhotoChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setPhotoFile(null);
+      return;
+    }
+    try {
+      const compressed = await compressImage(file, {
+        maxDimension: 1200,
+        quality: 0.82,
+      });
+      setPhotoFile(compressed);
+    } catch {
+      // If compression fails for any reason, fall back to the original file
+      // rather than blocking the person from uploading at all.
+      setPhotoFile(file);
+    }
+  }
+
+  async function handleAadharChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) {
+      setAadharFile(null);
+      return;
+    }
+    // PDFs pass through untouched. Aadhaar images get lighter compression
+    // (higher quality, larger max dimension) since this is a legal document
+    // and needs to stay clearly readable.
+    try {
+      const compressed = await compressImage(file, {
+        maxDimension: 1800,
+        quality: 0.9,
+      });
+      setAadharFile(compressed);
+    } catch {
+      setAadharFile(file);
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
       <Input
@@ -161,7 +201,7 @@ export default function StudentForm({
               type="file"
               accept="image/jpeg,image/png,image/webp"
               className="hidden"
-              onChange={(e) => setPhotoFile(e.target.files?.[0] || null)}
+              onChange={handlePhotoChange}
             />
           </label>
         </div>
@@ -208,7 +248,7 @@ export default function StudentForm({
             type="file"
             accept="image/jpeg,image/png,application/pdf"
             className="hidden"
-            onChange={(e) => setAadharFile(e.target.files?.[0] || null)}
+            onChange={handleAadharChange}
           />
         </label>
         {errors.aadharCard && (

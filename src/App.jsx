@@ -11,6 +11,7 @@ import Attendance from "./pages/Attendance";
 import AttendanceHistory from "./pages/AttendanceHistory";
 import AttendanceDetails from "./pages/AttendanceDetails";
 import Users from "./pages/Users";
+import UserDetails from "./pages/UserDetails";
 import StudentDetails from "./pages/studentDetails";
 
 function RoleHome() {
@@ -94,6 +95,14 @@ export default function App() {
               element={
                 <ProtectedRoute allowedRoles={["admin"]}>
                   <Users />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/users/:id"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <UserDetails />
                 </ProtectedRoute>
               }
             />

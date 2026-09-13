@@ -6,8 +6,18 @@ export const userService = {
     return data;
   },
 
+  async get(id) {
+    const { data } = await api.get(`/users/${id}`);
+    return data;
+  },
+
   async createTeacher(payload) {
     const { data } = await api.post("/users", payload);
+    return data;
+  },
+
+  async update(id, payload) {
+    const { data } = await api.put(`/users/${id}`, payload);
     return data;
   },
 };

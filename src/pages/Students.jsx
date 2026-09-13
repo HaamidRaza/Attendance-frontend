@@ -1,5 +1,4 @@
-// Students.jsx
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Search, Plus, Users } from "lucide-react";
 import Input from "../components/common/Input";
 import Select from "../components/common/Select";
@@ -37,6 +36,25 @@ export default function Students() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const { toast, showToast, clearToast } = useToast();
+
+  const isDeletingRef = useRef(false);
+
+  async function handleDeleteConfirm() {
+    if (!studentToDelete || isDeletingRef.current) return;
+    isDeletingRef.current = true;
+    setIsDeleting(true);
+    try {
+      await studentService.remove(studentToDelete.id);
+      showToast("Student deleted.");
+      setStudentToDelete(null);
+      loadStudents();
+    } catch (err) {
+      showToast(err?.message || "Couldn't delete student.", "error");
+    } finally {
+      setIsDeleting(false);
+      isDeletingRef.current = false;
+    }
+  }
 
   const loadStudents = useCallback(async () => {
     setIsLoading(true);
