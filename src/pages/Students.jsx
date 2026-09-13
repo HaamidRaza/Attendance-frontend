@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, useRef } from "react";
-import { Search, Plus, Users } from "lucide-react";
+import { Search, Plus, Users, X } from "lucide-react";
 import Input from "../components/common/Input";
 import Select from "../components/common/Select";
 import Button from "../components/common/Button";
@@ -36,25 +36,7 @@ export default function Students() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const { toast, showToast, clearToast } = useToast();
-
   const isDeletingRef = useRef(false);
-
-  async function handleDeleteConfirm() {
-    if (!studentToDelete || isDeletingRef.current) return;
-    isDeletingRef.current = true;
-    setIsDeleting(true);
-    try {
-      await studentService.remove(studentToDelete.id);
-      showToast("Student deleted.");
-      setStudentToDelete(null);
-      loadStudents();
-    } catch (err) {
-      showToast(err?.message || "Couldn't delete student.", "error");
-    } finally {
-      setIsDeleting(false);
-      isDeletingRef.current = false;
-    }
-  }
 
   const loadStudents = useCallback(async () => {
     setIsLoading(true);
@@ -64,7 +46,6 @@ export default function Students() {
         search: debouncedSearch || undefined,
         classId: classFilter || undefined,
       });
-
       setStudents(data?.students || data || []);
     } catch (err) {
       setLoadError(err?.message || "Couldn't load students.");
@@ -101,6 +82,11 @@ export default function Students() {
     setIsFormOpen(true);
   }
 
+  function clearFilters() {
+    setSearch("");
+    setClassFilter("");
+  }
+
   async function handleFormSubmit(values) {
     setIsSubmitting(true);
     setFormError("");
@@ -121,8 +107,12 @@ export default function Students() {
     }
   }
 
+  // Single, guarded delete handler (the old duplicate definition
+  // silently overwrote the ref-guarded version, so double-tap
+  // protection was never actually active).
   async function handleDeleteConfirm() {
-    if (!studentToDelete) return;
+    if (!studentToDelete || isDeletingRef.current) return;
+    isDeletingRef.current = true;
     setIsDeleting(true);
     try {
       await studentService.remove(studentToDelete.id);
@@ -133,6 +123,7 @@ export default function Students() {
       showToast(err?.message || "Couldn't delete student.", "error");
     } finally {
       setIsDeleting(false);
+      isDeletingRef.current = false;
     }
   }
 
@@ -144,16 +135,19 @@ export default function Students() {
         <div>
           <h1 className="text-xl font-semibold font-display m-0">Students</h1>
           <p className="text-sm text-slate mt-1 m-0">
-            Add and manage students across your classes.
+            {isLoading
+              ? "Add and manage students across your classes."
+              : `${students.length} student${students.length === 1 ? "" : "s"}${
+                  hasFilters ? " matching filters" : ""
+                }`}
           </p>
         </div>
-        <Button
-          icon={Plus}
-          onClick={openAddForm}
-          className="hidden sm:inline-flex"
-        >
-          Add Student
-        </Button>
+        {/* Wrapper div owns the visibility, not the Button's own className */}
+        <div className="hidden sm:block">
+          <Button icon={Plus} onClick={openAddForm}>
+            Add Student
+          </Button>
+        </div>
       </div>
 
       <div
@@ -176,10 +170,23 @@ export default function Students() {
             onChange={(e) => setClassFilter(e.target.value)}
           />
         </div>
+      </div>
+
+      {hasFilters && (
+        <button
+          onClick={clearFilters}
+          className="self-start -mt-2 flex items-center gap-1 text-xs text-slate hover:text-ink transition-colors"
+        >
+          <X className="w-3.5 h-3.5" />
+          Clear filters
+        </button>
+      )}
+
+      <div className="sm:hidden">
         <Button
           icon={Plus}
           onClick={openAddForm}
-          className="w-full sm:hidden justify-center"
+          className="w-full justify-center"
         >
           Add Student
         </Button>
@@ -211,7 +218,11 @@ export default function Students() {
                 : "Add your first student."
             }
             action={
-              !hasFilters && (
+              hasFilters ? (
+                <Button variant="ghost" onClick={clearFilters}>
+                  Clear filters
+                </Button>
+              ) : (
                 <Button icon={Plus} onClick={openAddForm}>
                   Add Student
                 </Button>

@@ -12,29 +12,34 @@ function initials(name = "") {
     .join("");
 }
 
-function RowActions({ student, onEdit, onDelete }) {
+function RowActions({ student, onEdit, onDelete, size = "md" }) {
+  const pad = size === "lg" ? "p-2.5" : "p-2";
+  const icon = size === "lg" ? "w-4.5 h-4.5" : "w-4 h-4";
   return (
     <>
       <Link
         to={`/students/${student.id}`}
         aria-label={`View ${student.name}`}
-        className="p-2 rounded-lg text-slate transition-colors duration-150 hover:text-brand-600 hover:bg-brand-50 active:scale-90"
+        title="View"
+        className={`${pad} rounded-lg text-slate transition-colors duration-150 hover:text-brand-600 hover:bg-brand-50 active:scale-90`}
       >
-        <Eye className="w-4 h-4" />
+        <Eye className={icon} />
       </Link>
       <button
         onClick={() => onEdit(student)}
         aria-label={`Edit ${student.name}`}
-        className="p-2 rounded-lg text-slate transition-colors duration-150 hover:text-brand-600 hover:bg-brand-50 active:scale-90"
+        title="Edit"
+        className={`${pad} rounded-lg text-slate transition-colors duration-150 hover:text-brand-600 hover:bg-brand-50 active:scale-90`}
       >
-        <Pencil className="w-4 h-4" />
+        <Pencil className={icon} />
       </button>
       <button
         onClick={() => onDelete(student)}
         aria-label={`Delete ${student.name}`}
-        className="p-2 rounded-lg text-slate transition-colors duration-150 hover:text-absent-600 hover:bg-absent-50 active:scale-90"
+        title="Delete"
+        className={`${pad} rounded-lg text-slate transition-colors duration-150 hover:text-absent-600 hover:bg-absent-50 active:scale-90`}
       >
-        <Trash2 className="w-4 h-4" />
+        <Trash2 className={icon} />
       </button>
     </>
   );
@@ -90,29 +95,32 @@ export default function StudentTable({ students, onEdit, onDelete }) {
             className="rounded-xl border border-line bg-surface overflow-hidden animate-fade-up"
             style={{ animationDelay: `${Math.min(index * 40, 400)}ms` }}
           >
-            <div className="flex items-center gap-3 p-4">
+            <div className="flex items-start gap-3 p-4">
               <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-brand-50 font-display font-semibold text-brand-700">
                 {initials(student.name) || "?"}
               </div>
               <div className="min-w-0 flex-1">
-                <p className="font-medium text-ink m-0 truncate">
-                  {student.name}
-                </p>
-                <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                  <span className="text-xs text-slate bg-canvas rounded-md px-1.5 py-0.5">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-medium text-ink m-0 truncate">
+                    {student.name}
+                  </p>
+                  <span className="shrink-0 text-xs text-slate bg-canvas rounded-md px-1.5 py-0.5">
                     Roll {student.rollNumber}
                   </span>
-                  <span className="text-xs text-slate bg-canvas rounded-md px-1.5 py-0.5 truncate max-w-[9rem]">
-                    {classLabel(student.classId)}
-                  </span>
                 </div>
+                {/* Full width, wraps instead of truncating — class + time
+                    is exactly the info a parent/teacher scans for. */}
+                <p className="text-xs text-slate mt-1.5 m-0 leading-snug">
+                  {classLabel(student.classId)}
+                </p>
               </div>
             </div>
-            <div className="flex items-center justify-end gap-1 px-3 py-2 border-t border-line bg-canvas/40">
+            <div className="flex items-center justify-end gap-2 px-3 py-2 border-t border-line bg-canvas/40">
               <RowActions
                 student={student}
                 onEdit={onEdit}
                 onDelete={onDelete}
+                size="lg"
               />
             </div>
           </div>
