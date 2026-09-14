@@ -1,8 +1,9 @@
-// AttendanceHistory.jsx
 import { useEffect, useState, useCallback } from "react";
-import { History } from "lucide-react";
+import { History, Download } from "lucide-react";
+import { downloadBlob } from "../utils/downloadBlob";
 import Select from "../components/common/Select";
 import Input from "../components/common/Input";
+import Button from "../components/common/Button";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import EmptyState from "../components/common/EmptyState";
 import ErrorBanner from "../components/common/ErrorBanner";
@@ -15,6 +16,29 @@ export default function AttendanceHistory() {
   const [classes, setClasses] = useState([]);
   const [classFilter, setClassFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
+  const [exportClassId, setExportClassId] = useState("");
+  const [exportMonth, setExportMonth] = useState(() =>
+    new Date().toISOString().slice(0, 7),
+  );
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState("");
+
+  async function handleExport() {
+    if (!exportClassId || !exportMonth) return;
+    setIsExporting(true);
+    setExportError("");
+    try {
+      const blob = await attendanceService.exportMonthly(
+        exportClassId,
+        exportMonth,
+      );
+      downloadBlob(blob, `attendance-${exportMonth}.xlsx`);
+    } catch (err) {
+      setExportError(err?.message || "Couldn't generate the report.");
+    } finally {
+      setIsExporting(false);
+    }
+  }
 
   const [records, setRecords] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -84,6 +108,42 @@ export default function AttendanceHistory() {
           onChange={(e) => setDateFilter(e.target.value)}
         />
       </div>
+
+      <div className="rounded-xl border border-line bg-surface p-4 flex flex-col sm:flex-row sm:items-end gap-3">
+        <div className="flex-1">
+          <Select
+            label="Class"
+            placeholder="Select class to export"
+            options={classOptions}
+            value={exportClassId}
+            onChange={(e) => setExportClassId(e.target.value)}
+          />
+        </div>
+        <div className="sm:w-48">
+          <Input
+            label="Month"
+            type="month"
+            max={new Date().toISOString().slice(0, 7)}
+            value={exportMonth}
+            onChange={(e) => setExportMonth(e.target.value)}
+          />
+        </div>
+        <Button
+          icon={Download}
+          onClick={handleExport}
+          disabled={!exportClassId}
+          isLoading={isExporting}
+          loadingText="Generating…"
+        >
+          Download Excel
+        </Button>
+      </div>
+      {exportError && (
+        <ErrorBanner
+          message={exportError}
+          onDismiss={() => setExportError("")}
+        />
+      )}
 
       {error && (
         <div className="animate-fade-up">

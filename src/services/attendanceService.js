@@ -1,10 +1,18 @@
 import api from "./api";
 
 export const attendanceService = {
-  // Fetch an existing attendance record for a class/date so the Take
-  // Attendance page can pre-fill it and switch into "update" mode.
+  async exportMonthly(classId, month) {
+    const response = await api.get("/attendance/export", {
+      params: { classId, month },
+      responseType: "blob",
+    });
+    return response.data;
+  },
+
   async getForClassAndDate(classId, date) {
-    const { data } = await api.get("/attendance", { params: { classId, date } });
+    const { data } = await api.get("/attendance", {
+      params: { classId, date },
+    });
     return data;
   },
 
@@ -14,12 +22,17 @@ export const attendanceService = {
   },
 
   async update(id, { classId, date, records }) {
-    const { data } = await api.put(`/attendance/${id}`, { classId, date, records });
+    const { data } = await api.put(`/attendance/${id}`, {
+      classId,
+      date,
+      records,
+    });
     return data;
   },
 
   async history(params = {}) {
     const { data } = await api.get("/attendance/history", { params });
+    console.log(data)
     return data;
   },
 

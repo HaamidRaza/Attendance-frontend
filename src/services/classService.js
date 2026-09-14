@@ -30,4 +30,18 @@ export const classService = {
     const { data } = await api.get("/students", { params: { classId: id } });
     return data;
   },
+  
+  async assignTeacher(classId, teacherId) {
+    const { data } = await api.post(`/classes/${classId}/teachers`, {
+      teacherId,
+    });
+    return data;
+  },
+
+  async unassignTeacher(classId, teacherId) {
+    const { data } = await api.delete(
+      `/classes/${classId}/teachers/${teacherId}`,
+    );
+    return data;
+  },
 };

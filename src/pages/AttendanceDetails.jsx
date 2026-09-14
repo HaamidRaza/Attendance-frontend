@@ -79,7 +79,8 @@ export default function AttendanceDetails() {
               </h1>
               <p className="text-sm text-slate mt-1 m-0">
                 {formatDate(record.date)}
-                {record.takenBy?.name && ` · Taken by ${record.takenBy.name}`}
+                {(record.takenByName || record.takenBy?.name) &&
+                  ` · Taken by ${record.takenByName || record.takenBy?.name}`}
               </p>
             </div>
             <Button variant="secondary" icon={Pencil} onClick={handleEdit}>

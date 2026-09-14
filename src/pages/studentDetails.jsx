@@ -20,6 +20,7 @@ function initials(name = "") {
 export default function StudentDetails() {
   const { id } = useParams();
   const [student, setStudent] = useState(null);
+  const [showAadhar, setShowAadhar] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -50,8 +51,6 @@ export default function StudentDetails() {
     isLoading: isAadharLoading,
     error: aadharError,
   } = useProtectedFile(student?.aadharUrl);
-
-  const isAadharPdf = student?.aadharCard?.mimeType === "application/pdf";
 
   return (
     <div className="flex flex-col gap-5">
@@ -108,69 +107,26 @@ export default function StudentDetails() {
             </div>
           </div>
 
-          {/* Aadhar document */}
-          <div
-            className="rounded-2xl border border-line bg-surface p-5 sm:p-6 animate-fade-up"
-            style={{ animationDelay: "80ms" }}
-          >
-            <div className="flex items-center gap-2 mb-4">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-700 shrink-0">
-                <IdCard className="w-4 h-4" />
-              </div>
-              <h2 className="text-base font-semibold font-display m-0">
-                Aadhar Card
-              </h2>
+          {/* Aadhar number */}
+          <div className="rounded-xl border border-line bg-surface p-5">
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="text-base font-semibold m-0">Aadhar Number</h2>
+              {student.aadharNumber && (
+                <button
+                  onClick={() => setShowAadhar((s) => !s)}
+                  className="text-sm font-medium text-brand-600 hover:text-brand-700"
+                >
+                  {showAadhar ? "Hide" : "Show"}
+                </button>
+              )}
             </div>
-
-            {isAadharLoading ? (
-              <div className="w-full h-56 rounded-lg bg-line animate-pulse" />
-            ) : aadharError ? (
-              <ErrorBanner message={aadharError} />
-            ) : aadharUrl ? (
-              isAadharPdf ? (
-                <div className="flex flex-col gap-3 animate-fade-up">
-                  <iframe
-                    src={aadharUrl}
-                    title="Aadhar card"
-                    className="w-full h-[32rem] sm:h-150 rounded-lg border border-line"
-                  />
-                  <a
-                    href={aadharUrl}
-                    download={`${student.name}-aadhar.pdf`}
-                    className="inline-flex items-center gap-1.5 self-start rounded-lg border border-line px-3.5 py-2 text-sm font-medium text-brand-600 transition-colors hover:bg-brand-50 hover:text-brand-700"
-                  >
-                    <Download className="w-4 h-4" />
-                    Download PDF
-                  </a>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-3 animate-fade-up">
-                  <div className="overflow-hidden rounded-lg border border-line bg-canvas">
-                    <img
-                      src={aadharUrl}
-                      alt="Aadhar card"
-                      className="w-full max-w-sm mx-auto sm:mx-0 object-contain transition-transform duration-300 hover:scale-[1.03]"
-                    />
-                  </div>
-
-                  <a
-                    href={aadharUrl}
-                    download={`${student.name}-aadhar`}
-                    className="inline-flex items-center gap-1.5 self-start rounded-lg border border-line px-3.5 py-2 text-sm font-medium text-brand-600 transition-colors hover:bg-brand-50 hover:text-brand-700"
-                  >
-                    <Download className="w-4 h-4" />
-                    Download Image
-                  </a>
-                </div>
-              )
-            ) : (
-              <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-line-strong bg-canvas py-10 text-center">
-                <ImageOff className="w-6 h-6 text-mist" />
-                <p className="text-sm text-slate m-0">
-                  No Aadhar document on file.
-                </p>
-              </div>
-            )}
+            <p className="text-lg font-mono tracking-wider text-ink m-0">
+              {student.aadharNumber
+                ? showAadhar
+                  ? student.aadharNumber.replace(/(\d{4})(?=\d)/g, "$1 ")
+                  : `XXXX XXXX ${student.aadharNumber.slice(-4)}`
+                : "Not on file"}
+            </p>
           </div>
         </>
       ) : null}

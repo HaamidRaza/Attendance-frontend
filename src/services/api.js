@@ -30,7 +30,18 @@ api.interceptors.response.use(
     }
     return response;
   },
-  (error) => {
+  async (error) => {
+    if (
+      error.response?.data instanceof Blob &&
+      error.response.data.type === "application/json"
+    ) {
+      try {
+        const text = await error.response.data.text();
+        error.response.data = JSON.parse(text);
+      } catch {
+      }
+    }
+
     if (error.response?.status === 401) {
       localStorage.removeItem("auth_token");
       localStorage.removeItem("auth_user");
@@ -56,7 +67,11 @@ export function normalizeError(error) {
 
   // Try to extract a useful message from known response shapes
   const extractedMessage =
-    data?.message || data?.error?.message || data?.error || (typeof data === "string" ? data : undefined) || error?.message;
+    data?.message ||
+    data?.error?.message ||
+    data?.error ||
+    (typeof data === "string" ? data : undefined) ||
+    error?.message;
 
   if (status === 409) {
     return {

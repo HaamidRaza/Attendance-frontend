@@ -46,7 +46,7 @@ export default function HistoryTable({ records }) {
                   {record.statistics.percentage}%
                 </td>
                 <td className="px-4 py-3 text-slate">
-                  {record.takenBy?.name || "—"}
+                  {record.takenByName || record.takenBy?.name || "—"}
                 </td>
                 <td className="px-4 py-3 text-right">
                   <Link
@@ -88,7 +88,7 @@ export default function HistoryTable({ records }) {
                 </span>
               </p>
               <p className="text-xs text-slate mt-1 m-0">
-                Taken by {record.takenBy?.name || "—"}
+                Taken by {record.takenByName || record.takenBy?.name || "—"}
               </p>
             </div>
             <div className="flex items-center gap-1.5 text-slate shrink-0">

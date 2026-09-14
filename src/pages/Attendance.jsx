@@ -148,8 +148,8 @@ export default function Attendance() {
   }
 
   return (
-    <div className="flex flex-col gap-5 pb-28 sm:pb-6">
-      <div className="animate-fade-up">
+    <div className="flex flex-col gap-5 pb-40 sm:pb-6">
+      <div className="hidden md:block animate-fade-up">
         <h1 className="text-xl font-semibold font-display m-0">
           Take Attendance
         </h1>
@@ -261,7 +261,12 @@ export default function Attendance() {
           </div>
 
           {/* Sticky mobile save bar */}
-          <div className="sm:hidden fixed bottom-16 left-0 right-0 p-4 bg-surface/95 backdrop-blur-sm border-t border-line animate-sheet-up">
+          <div
+            className="sm:hidden fixed bottom-16 left-0 right-0 p-4 bg-surface/95 backdrop-blur-sm border-t border-line animate-sheet-up"
+            style={{
+              paddingBottom: "calc(1rem + env(safe-area-inset-bottom))",
+            }}
+          >
             <Button
               size="lg"
               className="w-full"

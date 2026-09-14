@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
-import { Eye } from "lucide-react";
+import { Eye, Trash2 } from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
 
-export default function UserTable({ users }) {
+export default function UserTable({ users, onDelete }) {
+  const { user: currentUser } = useAuth();
+
   return (
     <>
       {/* Desktop table */}
@@ -31,14 +34,25 @@ export default function UserTable({ users }) {
                     {u.role}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-right">
-                  <Link
-                    to={`/users/${u.id}`}
-                    aria-label={`View ${u.name}`}
-                    className="inline-flex p-2 rounded-lg text-slate hover:text-brand-600 hover:bg-brand-50"
-                  >
-                    <Eye className="w-4 h-4" />
-                  </Link>
+                <td className="px-4 py-3">
+                  <div className="flex items-center justify-end gap-1">
+                    <Link
+                      to={`/users/${u.id}`}
+                      aria-label={`View ${u.name}`}
+                      className="p-2 rounded-lg text-slate hover:text-brand-600 hover:bg-brand-50"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Link>
+                    {u.id !== currentUser?.id && (
+                      <button
+                        onClick={() => onDelete(u)}
+                        aria-label={`Delete ${u.name}`}
+                        className="p-2 rounded-lg text-slate hover:text-absent-600 hover:bg-absent-50"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}
@@ -49,25 +63,35 @@ export default function UserTable({ users }) {
       {/* Mobile cards */}
       <div className="sm:hidden flex flex-col gap-2.5">
         {users.map((u) => (
-          <Link
+          <div
             key={u.id}
-            to={`/users/${u.id}`}
             className="rounded-xl border border-line bg-surface p-4 flex items-center justify-between gap-3"
           >
-            <div>
+            <Link to={`/users/${u.id}`} className="flex-1 min-w-0">
               <p className="font-medium text-ink m-0">{u.name}</p>
               <p className="text-sm text-slate mt-0.5 m-0">{u.email}</p>
+            </Link>
+            <div className="flex items-center gap-2 shrink-0">
+              <span
+                className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
+                  u.role === "admin"
+                    ? "bg-brand-50 text-brand-600"
+                    : "bg-canvas text-slate border border-line"
+                }`}
+              >
+                {u.role}
+              </span>
+              {u.id !== currentUser?.id && (
+                <button
+                  onClick={() => onDelete(u)}
+                  aria-label={`Delete ${u.name}`}
+                  className="p-2 rounded-lg text-slate hover:text-absent-600 hover:bg-absent-50"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              )}
             </div>
-            <span
-              className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium shrink-0 ${
-                u.role === "admin"
-                  ? "bg-brand-50 text-brand-600"
-                  : "bg-canvas text-slate border border-line"
-              }`}
-            >
-              {u.role}
-            </span>
-          </Link>
+          </div>
         ))}
       </div>
     </>

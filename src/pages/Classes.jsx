@@ -9,6 +9,8 @@ import ErrorBanner from "../components/common/ErrorBanner";
 import Toast from "../components/common/Toast";
 import ClassTable from "../components/classes/ClassTable";
 import ClassForm from "../components/classes/ClassForm";
+import ManageTeachersModal from "../components/classes/ManageTeacherModal";
+import { userService } from "../services/userService";
 import { classService } from "../services/classService";
 import { useToast } from "../hooks/useToast";
 import { classLabel } from "../utils/format";
@@ -25,6 +27,19 @@ export default function Classes() {
 
   const [classToDelete, setClassToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [allTeachers, setAllTeachers] = useState([]);
+  const [classToManage, setClassToManage] = useState(null);
+
+  useEffect(() => {
+    userService
+      .list()
+      .then((data) =>
+        setAllTeachers(
+          (data?.users || data || []).filter((u) => u.role === "teacher"),
+        ),
+      )
+      .catch(() => setAllTeachers([]));
+  }, []);
 
   const { toast, showToast, clearToast } = useToast();
 
@@ -97,9 +112,15 @@ export default function Classes() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-up">
         <div>
           <h1 className="text-xl font-semibold font-display m-0">Classes</h1>
-          <p className="text-sm text-slate mt-1 m-0">Create and manage the classes you take attendance for.</p>
+          <p className="text-sm text-slate mt-1 m-0">
+            Create and manage the classes you take attendance for.
+          </p>
         </div>
-        <Button icon={Plus} onClick={openAddForm} className="w-full sm:w-auto justify-center">
+        <Button
+          icon={Plus}
+          onClick={openAddForm}
+          className="w-full sm:w-auto justify-center"
+        >
           Add Class
         </Button>
       </div>
@@ -113,7 +134,10 @@ export default function Classes() {
       {isLoading ? (
         <LoadingSpinner label="Loading classes…" />
       ) : classes.length === 0 ? (
-        <div className="rounded-xl border border-line bg-surface animate-fade-up" style={{ animationDelay: "80ms" }}>
+        <div
+          className="rounded-xl border border-line bg-surface animate-fade-up"
+          style={{ animationDelay: "80ms" }}
+        >
           <EmptyState
             icon={GraduationCap}
             title="No classes found."
@@ -127,9 +151,31 @@ export default function Classes() {
         </div>
       ) : (
         <div className="animate-fade-up" style={{ animationDelay: "80ms" }}>
-          <ClassTable classes={classes} onEdit={openEditForm} onDelete={setClassToDelete} />
+          <ClassTable
+            classes={classes}
+            onEdit={openEditForm}
+            onDelete={setClassToDelete}
+            onManageTeachers={setClassToManage}
+          />
         </div>
       )}
+
+      <ManageTeachersModal
+        cls={classToManage}
+        allTeachers={allTeachers}
+        isOpen={Boolean(classToManage)}
+        onClose={() => setClassToManage(null)}
+        onChanged={async () => {
+          await loadClasses();
+          // Keep the modal's own view of `cls` in sync after an assign/remove,
+          // since it's reading from local state, not re-fetched automatically.
+          const refreshed = await classService.list();
+          const list = refreshed?.classes || refreshed || [];
+          setClassToManage((prev) =>
+            prev ? list.find((c) => c.id === prev.id) || null : null,
+          );
+        }}
+      />
 
       <Modal
         isOpen={isFormOpen}
@@ -138,7 +184,10 @@ export default function Classes() {
       >
         {formError && (
           <div className="mb-4">
-            <ErrorBanner message={formError} onDismiss={() => setFormError("")} />
+            <ErrorBanner
+              message={formError}
+              onDismiss={() => setFormError("")}
+            />
           </div>
         )}
         <ClassForm

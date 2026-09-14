@@ -20,4 +20,9 @@ export const userService = {
     const { data } = await api.put(`/users/${id}`, payload);
     return data;
   },
+  
+  async remove(id) {
+    const { data } = await api.delete(`/users/${id}`);
+    return data;
+  },
 };

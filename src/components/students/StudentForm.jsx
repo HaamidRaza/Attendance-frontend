@@ -23,9 +23,9 @@ export default function StudentForm({
     name: initialValues?.name || "",
     rollNumber: initialValues?.rollNumber || "",
     classId: initialValues?.classId?.id || initialValues?.classId || "",
+    aadharNumber: "",
   });
   const [photoFile, setPhotoFile] = useState(null);
-  const [aadharFile, setAadharFile] = useState(null);
   const [photoPreview, setPhotoPreview] = useState(null);
   const [errors, setErrors] = useState({});
 
@@ -65,14 +65,15 @@ export default function StudentForm({
 
     if (!isEditing && !photoFile)
       nextErrors.photo = "Student photo is required.";
-    if (!isEditing && !aadharFile)
-      nextErrors.aadharCard = "Aadhar card (photo or PDF) is required.";
+
+    if (!isEditing || values.aadharNumber) {
+      if (!/^\d{12}$/.test(values.aadharNumber)) {
+        nextErrors.aadharNumber = "Aadhar number must be exactly 12 digits.";
+      }
+    }
 
     const photoError = validateFile(photoFile, PHOTO_TYPES, "photo");
     if (photoError) nextErrors.photo = photoError;
-
-    const aadharError = validateFile(aadharFile, AADHAR_TYPES, "aadhar");
-    if (aadharError) nextErrors.aadharCard = aadharError;
 
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
@@ -86,8 +87,9 @@ export default function StudentForm({
     formData.append("name", values.name.trim());
     formData.append("rollNumber", values.rollNumber.trim());
     formData.append("classId", values.classId);
+    if (values.aadharNumber)
+      formData.append("aadharNumber", values.aadharNumber);
     if (photoFile) formData.append("photo", photoFile);
-    if (aadharFile) formData.append("aadharCard", aadharFile);
 
     onSubmit(formData);
   }
@@ -108,26 +110,6 @@ export default function StudentForm({
       // If compression fails for any reason, fall back to the original file
       // rather than blocking the person from uploading at all.
       setPhotoFile(file);
-    }
-  }
-
-  async function handleAadharChange(e) {
-    const file = e.target.files?.[0];
-    if (!file) {
-      setAadharFile(null);
-      return;
-    }
-    // PDFs pass through untouched. Aadhaar images get lighter compression
-    // (higher quality, larger max dimension) since this is a legal document
-    // and needs to stay clearly readable.
-    try {
-      const compressed = await compressImage(file, {
-        maxDimension: 1800,
-        quality: 0.9,
-      });
-      setAadharFile(compressed);
-    } catch {
-      setAadharFile(file);
     }
   }
 
@@ -213,48 +195,25 @@ export default function StudentForm({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-sm font-medium text-ink">
-          Aadhar Card
-          {isEditing && (
-            <span className="text-slate font-normal">
-              {" "}
-              (leave empty to keep current)
-            </span>
-          )}
-        </label>
-        <label className="flex items-center gap-2 rounded-lg border border-dashed border-line-strong px-3.5 py-2.5 text-sm text-slate cursor-pointer transition-colors duration-150 hover:bg-canvas hover:border-brand-500/50">
-          <FileText className="w-4 h-4 shrink-0" />
-          <span className="truncate">
-            {aadharFile
-              ? aadharFile.name
-              : isEditing
-                ? "Replace Aadhar photo or PDF…"
-                : "Choose Aadhar photo or PDF…"}
-          </span>
-          {aadharFile && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                setAadharFile(null);
-              }}
-              aria-label="Remove selected Aadhar file"
-              className="ml-auto shrink-0 p-1 rounded-md text-mist transition-colors hover:text-absent-600 hover:bg-absent-50"
-            >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
-          <input
-            type="file"
-            accept="image/jpeg,image/png,application/pdf"
-            className="hidden"
-            onChange={handleAadharChange}
-          />
-        </label>
-        {errors.aadharCard && (
-          <span className="text-xs text-absent-600 animate-fade-up">
-            {errors.aadharCard}
-          </span>
+        <Input
+          label="Aadhar Number"
+          name="aadharNumber"
+          placeholder="12-digit number"
+          inputMode="numeric"
+          maxLength={12}
+          value={values.aadharNumber}
+          error={errors.aadharNumber}
+          onChange={(e) =>
+            setValues((v) => ({
+              ...v,
+              aadharNumber: e.target.value.replace(/\D/g, "").slice(0, 12),
+            }))
+          }
+        />
+        {isEditing && (
+          <p className="text-xs text-slate -mt-2">
+            Leave empty to keep the current Aadhar number.
+          </p>
         )}
       </div>
 

@@ -92,19 +92,24 @@ export default function AttendanceTable({
 
       {/* Mobile cards */}
       <div className="sm:hidden flex flex-col gap-2.5">
-        <div className="flex items-center justify-end gap-3 px-1 text-xs text-mist">
-          <span className="flex items-center gap-1">
-            <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-brand-500">
-              <Check className="h-2.5 w-2.5 text-white" strokeWidth={4} />
+        <div className="flex items-center justify-between px-1">
+          <p className="text-xs text-mist m-0">
+            Tap a circle to toggle attendance
+          </p>
+          <div className="flex items-center gap-3 text-xs text-mist">
+            <span className="flex items-center gap-1">
+              <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full bg-brand-500">
+                <Check className="h-2.5 w-2.5 text-white" strokeWidth={4} />
+              </span>
+              Present
             </span>
-            Present
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-absent-600 bg-absent-50">
-              <X className="h-2.5 w-2.5 text-absent-600" strokeWidth={4} />
+            <span className="flex items-center gap-1">
+              <span className="flex h-3.5 w-3.5 items-center justify-center rounded-full border border-absent-600 bg-absent-50">
+                <X className="h-2.5 w-2.5 text-absent-600" strokeWidth={4} />
+              </span>
+              Absent
             </span>
-            Absent
-          </span>
+          </div>
         </div>
 
         {students.map((student, index) => (
